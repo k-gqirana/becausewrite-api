@@ -127,6 +127,8 @@ const emailData = [
 ];
 
 // Define a function to send emails to subscribed users
+// Define a variable to keep track of the next email index
+let nextEmailIndex = 0;
 const sendEmails = async () => {
   try {
     // Retrieve all subscribed emails from the database
@@ -137,24 +139,32 @@ const sendEmails = async () => {
       const { email: recipient } = email;
 
       // Get a random email data object
-      const randomEmailData =
-        emailData[Math.floor(Math.random() * emailData.length)];
+      // Get the current email data object based on the nextEmailIndex
+      const currentEmailData = emailData[nextEmailIndex];
+      // const currentEmailData =
+      //   emailData[Math.floor(Math.random() * emailData.length)];
+
+      // Increment the nextEmailIndex and reset it if it exceeds the array length
+      nextEmailIndex++;
+      if (nextEmailIndex >= emailData.length) {
+        nextEmailIndex = 0;
+      }
 
       // Compose the email content
       const mailOptions = {
         from: "your-email@gmail.com",
         to: recipient,
-        subject: randomEmailData.subject,
+        subject: currentEmailData.subject,
         html: `
-          <h1>${randomEmailData.heading}</h1>
-          <p>${randomEmailData.intro}</p>
-          <h2>${randomEmailData.tip}</h2>
-          <p>${randomEmailData.tipText}</p>
+          <h1>${currentEmailData.heading}</h1>
+          <p>${currentEmailData.intro}</p>
+          <h2>${currentEmailData.tip}</h2>
+          <p>${currentEmailData.tipText}</p>
           <h2>Example:</h2>
-          <img src="${randomEmailData.example.Task}" alt="Example Task" />
-          <img src="${randomEmailData.example.TipAnswer}" alt="Tip Answer" />
-          <p>${randomEmailData.outro}</p>
-          <blockquote>${randomEmailData.quote}</blockquote>
+          <img src="${currentEmailData.example.Task}" alt="Example Task" />
+          <img src="${currentEmailData.example.TipAnswer}" alt="Tip Answer" />
+          <p>${currentEmailData.outro}</p>
+          <blockquote>${currentEmailData.quote}</blockquote>
           <p>... include footer with unsubscribe directory ...</p>
         `,
       };
