@@ -9,6 +9,9 @@ const crypto = require("crypto"); // For unsubscribe functionality
 const app = express();
 app.use(express.json());
 
+// Serving static files from the assets directory i.e. images or css files
+app.use("/assets", express.static(path.join(__dirname, "assets")));
+
 // Connect to MongoDB
 // mongoose.connect(process.env.DATABASE_URL, {
 //   useNewUrlParser: true,
@@ -90,6 +93,39 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// This where we define the content of the emils we sending, as an array of json objects
+const emailData = [
+  {
+    subject:
+      "I'm writing the IELTS exam, in a month, and I feel like I'm nowhere ...",
+    heading: "becausewrite, we got You!",
+    intro: "Hey there, you're preparing for the IELTS exam? ...",
+    tip: "Tip of the Day: Read and Understand the Task!",
+    tipText: "Take a deep breath and read the task carefully. ...",
+    example: {
+      Task: "path/to/example/task.png",
+      TipAnswer: "path/to/example/tip-answer.png",
+    },
+    outro: "Convinced to improve your IELTS writing skills? ...",
+    quote: "Don't watch the clock; do what it does. Keep going. - Sam Levenson",
+  },
+  {
+    subject: "Master the Art of IELTS Speaking",
+    heading: "Speak Like a Pro!",
+    intro: "Hello IELTS achiever! Ready to take your speaking skills ...",
+    tip: "Tip of the Day: Practice with Native Speakers",
+    tipText:
+      "To improve your speaking, practice with native English speakers ...",
+    example: {
+      Task: "path/to/speaking/example.png",
+      TipAnswer: "path/to/speaking/tip-answer.png",
+    },
+    outro: "Ready to shine in your IELTS speaking test? ...",
+    quote: "The expert in anything was once a beginner. - Helen Hayes",
+  },
+  // ... (add more email objects)
+];
+
 // Define a function to send emails to subscribed users
 const sendEmails = async () => {
   try {
@@ -100,19 +136,27 @@ const sendEmails = async () => {
     for (const email of emails) {
       const { email: recipient } = email;
 
+      // Get a random email data object
+      const randomEmailData =
+        emailData[Math.floor(Math.random() * emailData.length)];
+
       // Compose the email content
       const mailOptions = {
         from: "your-email@gmail.com",
         to: recipient,
-        subject: "Weekly Email",
-        html: `<h1>IELTS Task:</h1>
-        <p>...</p>
-        <h1>Tip of the Day:</h1>
-        <p>...</p>
-        <h1>Example:</h1>
-        <p>...</p>
-        <h1>Motivational Quote:</h1>
-        <p>...</p>`,
+        subject: randomEmailData.subject,
+        html: `
+          <h1>${randomEmailData.heading}</h1>
+          <p>${randomEmailData.intro}</p>
+          <h2>${randomEmailData.tip}</h2>
+          <p>${randomEmailData.tipText}</p>
+          <h2>Example:</h2>
+          <img src="${randomEmailData.example.Task}" alt="Example Task" />
+          <img src="${randomEmailData.example.TipAnswer}" alt="Tip Answer" />
+          <p>${randomEmailData.outro}</p>
+          <blockquote>${randomEmailData.quote}</blockquote>
+          <p>... include footer with unsubscribe directory ...</p>
+        `,
       };
 
       // Send the email
@@ -124,7 +168,8 @@ const sendEmails = async () => {
 };
 
 // Schedule the email sending function to run once a week (adjust the timing as needed)
-setInterval(sendEmails, 7 * 24 * 60 * 60 * 1000);
+const intervalInMilliseconds = (7 * 24 * 60 * 60 * 1000) / 3; // Sends 3 emails a week
+setInterval(sendEmails, intervalInMilliseconds);
 
 // ------------------------------- Start the server when we connect to the database -------------------------//
 
