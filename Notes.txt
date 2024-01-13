@@ -1,0 +1,2 @@
+1. Set up SMTP seetings for email service/provider we'll be using. To test, we'll use gmail. 
+https://www.phind.com/search?cache=n1qfkf3t6grpr2nm39conkk6

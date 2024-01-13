@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto"); // For unsubscribe functionality
+const emailObjects = require("./emailObjects");
 
 // Create an Express app
 const app = express();
@@ -28,6 +29,17 @@ const emailSchema = new mongoose.Schema({
 // Create a Mongoose model for emails
 const Email = mongoose.model("Email", emailSchema);
 
+// Sending Welcome Email
+const welcomeEmailData = emailObjects.welcomeEmail;
+const sendWelcomeEmail = async (recipient, welcomeEmail) => {
+  const mailOptions = {
+    from: process.env.USER_EMAIL,
+    to: recipient,
+    subject: welcomeEmailData.subject,
+    html: welcomeEmailData.html,
+  };
+};
+
 // Define the route to handle form submissions
 app.post("/subscribe", async (req, res) => {
   const { email } = req.body;
@@ -49,6 +61,8 @@ app.post("/subscribe", async (req, res) => {
     // Save the email to the database
     await newEmail.save();
 
+    // Send Welcome email
+    sendWelcomeEmail(email, welcomeEmailData);
     res.json({ message: "Subscription successful" });
   } catch (error) {
     console.error(error);
@@ -57,6 +71,7 @@ app.post("/subscribe", async (req, res) => {
 });
 
 // Unsubscribe functionality
+// Update to remove a subscribed user from the DB
 app.post("/unsubscribe", async (req, res) => {
   const { email, unsubscribeToken } = req.body;
 
@@ -95,6 +110,7 @@ const transporter = nodemailer.createTransport({
 
 // This where we define the content of the emils we sending, as an array of json objects
 const emailData = [
+  // First email will be welcome email.
   {
     subject:
       "I'm writing the IELTS exam, in a month, and I feel like I'm nowhere ...",
