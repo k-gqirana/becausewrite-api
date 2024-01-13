@@ -68,6 +68,14 @@ const welcomeEmail = {
     `,
 };
 
+const emailTips = [
+  {
+    subject:
+      "I'm writing the IELTS exam, in a month, and I feel like I'm nowhere ... ",
+    html: "",
+  },
+];
+
 module.exports = {
   welcomeEmail,
 };

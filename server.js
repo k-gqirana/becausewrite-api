@@ -24,6 +24,7 @@ const emailSchema = new mongoose.Schema({
   email: { type: String, required: true },
   subscribed: { type: Boolean, default: true },
   unsubscribeToken: { type: String },
+  lastEmailIndex: { type: Number, default: -1 }, //field to track the last email sent index
 });
 
 // Create a Mongoose model for emails
@@ -31,7 +32,7 @@ const Email = mongoose.model("Email", emailSchema);
 
 // Sending Welcome Email
 const welcomeEmailData = emailObjects.welcomeEmail;
-const sendWelcomeEmail = async (recipient, welcomeEmail) => {
+const sendEmail = async (recipient, welcomeEmail) => {
   const mailOptions = {
     from: process.env.USER_EMAIL,
     to: recipient,
@@ -39,6 +40,8 @@ const sendWelcomeEmail = async (recipient, welcomeEmail) => {
     html: welcomeEmailData.html,
   };
 };
+
+const sendNextEmail = async (user) => {};
 
 // Define the route to handle form submissions
 app.post("/subscribe", async (req, res) => {
@@ -62,7 +65,11 @@ app.post("/subscribe", async (req, res) => {
     await newEmail.save();
 
     // Send Welcome email
-    sendWelcomeEmail(email, welcomeEmailData);
+    sendEmail(email, welcomeEmailData);
+    // Sending the first email Tip after a user subscribes
+    // if (newEmail.subscribed) {
+    //   await sendNextEmail(newEmail);
+    // }
     res.json({ message: "Subscription successful" });
   } catch (error) {
     console.error(error);
@@ -195,11 +202,11 @@ const sendEmails = async () => {
 
 // Schedule the email sending function to run once a week (adjust the timing as needed)
 const intervalInMilliseconds = (7 * 24 * 60 * 60 * 1000) / 3; // Sends 3 emails a week
-setInterval(sendEmails, intervalInMilliseconds);
+setInterval(sendEmail, intervalInMilliseconds);
 
 // ------------------------------- Start the server when we connect to the database -------------------------//
 
-const port = 3001; // You can change the port number if needed
+const port = 3001;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });

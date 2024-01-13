@@ -1,2 +1,12 @@
 1. Set up SMTP seetings for email service/provider we'll be using. To test, we'll use gmail. 
-https://www.phind.com/search?cache=n1qfkf3t6grpr2nm39conkk6
+https://www.phind.com/search?cache=n1qfkf3t6grpr2nm39conkk6 
+
+const sendNextEmail = async (user) => {
+  if (user.lastEmailIndex < emailData.length - 1) {
+    const nextEmailIndex = user.lastEmailIndex + 1;
+    const emailContent = emailData[nextEmailIndex];
+    await sendWelcomeEmail(user.email, emailContent); // Reusing your existing function to send an email
+    user.lastEmailIndex = nextEmailIndex; // Update the last email index
+    await user.save();
+  }
+};
